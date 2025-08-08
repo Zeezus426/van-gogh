@@ -12,9 +12,11 @@ llm = Llama(
     model_path=MODEL_PATH,
     n_ctx=2048,               # same as your CLI -c 2048
     n_batch=512,              # Metal likes 512-1024
-    n_gpu_layers=35,          # leave last layer on CPU to stay under 12 GB
-    verbose=True,             # keep the diagnostic flood
-    chat_format="qwen",       # activates the chat template you saw
+    n_gpu_layers=35,          # leave last layer on CPU to stay under 12 GB 
+    chat_format="qwen",    # activates the chat template you saw
+    yarn_attn_factor=4.0,
+
+
 )
 
 # Stateful chat loop (identical to ./main -ins)
@@ -33,7 +35,7 @@ while True:
     for chunk in llm.create_chat_completion(
         messages,
         stream=True,
-        max_tokens=2048,
+        max_tokens=4090,
         temperature=0.8,
         top_p=0.95,
         tools=None,
