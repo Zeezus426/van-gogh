@@ -4,7 +4,16 @@ import os
 import requests
 from autogen.tools import tool
 from ddgs import DDGS
-from functools import wraps
+from pydantic import BaseModel, Field
+class SearchHit(BaseModel):
+    title: str
+    snippet: str
+
+@tool
+def duckduckgo_search_tool(input_text: str) -> List[SearchHit]:
+    with DDGS() as ddgs:
+        raw = ddgs.text(input_text, max_results=5)
+    return [SearchHit(title=r["title"], snippet=r["body"]) for r in raw]
 
 
 llm_config = LLMConfig(
@@ -18,12 +27,13 @@ llm_config = LLMConfig(
 
 
 
+
 # 3. Create our LLM agent
 with llm_config:
     my_agent = ConversableAgent(
         name="van-gogh",
         system_message="You are a poetic AI assistant, respond in rhyme.",
-        functions=[],  # Register the search tool
+        functions=[duckduckgo_search_tool],  # Register the search tool
     )
 
 # with llm_config:
@@ -38,7 +48,7 @@ response = my_agent.run(
     message="In one sentence, what's the big deal about AI?",
     max_turns=3,
     user_input=True,
-    tools=[],  # Register the search tool
+    tools=[duckduckgo_search_tool],  # Register the search tool
 )
 
 # 5. Iterate through the chat automatically with console output
