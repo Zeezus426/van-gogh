@@ -2,28 +2,28 @@ import os
 from qwen_agent.agents import Assistant
 from qwen_agent.utils.output_beautify import typewriter_print
 
-# Define LLM
-llm_cfg = {
-    'model': 'Qwen3-4B',
+query=input("\n>>> to think or not to think: ")
 
-    # Use the endpoint provided by Alibaba Model Studio:
-    # 'model_type': 'qwen_dashscope',
-    # 'api_key': os.getenv('DASHSCOPE_API_KEY'),
+if  query == "tk":
+    # Define LLM
+    llm_cfg = {
+        'model': 'Qwen3-4B',
+        'model_server': 'http://localhost:8081/v1',  # api_base
+        'api_key': 'EMPTY',
+        'tools': [],
+        'thinking_mode': 'True',  # Set to 'True' to enable thinking mode
+    }
+if query == "ntk":
+    llm_cfg = {
+        'model': 'Qwen3-4B',
+        'model_server': 'http://localhost:8080/v1',  # api_base
+        'api_key': 'EMPTY',
+        'tools': [],
+        'thinking_mode': 'False',  # Set to 'True' to enable thinking mode
+    }
 
-    # Use a custom endpoint compatible with OpenAI API:
-    'model_server': 'http://localhost:8000/v1',  # api_base
-    'api_key': 'EMPTY',
-    'thinking_mode': 'False',  # Set to 'True' to enable thinking mode
 
-    # Other parameters:
-    # 'generate_cfg': {
-    #         # Add: When the response content is `<think>this is the thought</think>this is the answer;
-    #         # Do not add: When the response has been separated by reasoning_content and content.
-    #         'thought_in_content': True,
-    #     },
-}
-
-
+llm_cfg=llm_cfg
 
 # Define Agent
 bot = Assistant(llm=llm_cfg)

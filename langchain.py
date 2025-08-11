@@ -1,21 +1,25 @@
-#!/usr/bin/env python3
 from llama_cpp import Llama
-import os, sys
+from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
+from langchain_core.prompts import PromptTemplate
 
-VAN_GOGH_THINKING = (
-    "/Users/zacharyaldin/Library/Caches/llama.cpp/"
-    "unsloth_Qwen3-4B-Thinking-2507-GGUF_Qwen3-4B-Thinking-2507-Q4_K_M.gguf"
+
+user_query = input("\n>>> to think or not to think: ")
+if user_query == "tk":
+    MODEL_PATH = ("/Users/zacharyaldin/Library/Caches/llama.cpp/"
+                "unsloth_Qwen3-4B-Thinking-2507-GGUF_Qwen3-4B-Thinking-2507-Q4_K_M.gguf"
 )
+if user_query == "ntk":
+    MODEL_PATH=('/Users/zacharyaldin/Library/Caches/llama.cpp/'
+                'bartowski_Qwen_Qwen3-4B-Instruct-2507-GGUF_Qwen_Qwen3-4B-Instruct-2507-Q4_K_M.gguf')
+    
 
-print("🚀  Loading model …")
 llm = Llama(
-    model_path=VAN_GOGH_THINKING,  # Change this to your model path
+    model_path=MODEL_PATH,
     n_ctx=2048,               # same as your CLI -c 2048
     n_batch=512,              # Metal likes 512-1024
     n_gpu_layers=35,          # leave last layer on CPU to stay under 12 GB 
     chat_format="qwen",    # activates the chat template you saw
     yarn_attn_factor=4.0,
-
 
 )
 
