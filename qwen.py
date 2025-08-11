@@ -1,6 +1,11 @@
 import os
 from qwen_agent.agents import Assistant
 from qwen_agent.utils.output_beautify import typewriter_print
+from qwen_agent.tools.base import BaseTool, register_tool
+from typing import List, Dict
+import requests
+
+
 
 query=input("\n>>> to think or not to think: ")
 
@@ -24,10 +29,10 @@ if query == "ntk":
 
 
 llm_cfg=llm_cfg
-
+tools = ['search', 'code_interpreter']
 # Define Agent
-bot = Assistant(llm=llm_cfg)
-
+prompt = 'You Van Gogh, an artist of the same name. You have access to the internet and can search for any information you need, to better effectively answer the users query'
+bot = Assistant(llm=llm_cfg, system_message=prompt, function_list=tools)
 # Step 4: Run the agent as a chatbot.
 messages = []  # This stores the chat history.
 while True:

@@ -1,51 +1,48 @@
-from llama_cpp import Llama
-from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
-from langchain_core.prompts import PromptTemplate
+from autogen import ConversableAgent, LLMConfig
+from typing import Dict, List, Optional, Any
+import os
+import requests
+from autogen.tools import tool
+from ddgs import DDGS
+from functools import wraps
 
 
-user_query = input("\n>>> to think or not to think: ")
-if user_query == "tk":
-    MODEL_PATH = ("/Users/zacharyaldin/Library/Caches/llama.cpp/"
-                "unsloth_Qwen3-4B-Thinking-2507-GGUF_Qwen3-4B-Thinking-2507-Q4_K_M.gguf"
-)
-if user_query == "ntk":
-    MODEL_PATH=('/Users/zacharyaldin/Library/Caches/llama.cpp/'
-                'bartowski_Qwen_Qwen3-4B-Instruct-2507-GGUF_Qwen_Qwen3-4B-Instruct-2507-Q4_K_M.gguf')
-    
-
-llm = Llama(
-    model_path=MODEL_PATH,
-    n_ctx=2048,               # same as your CLI -c 2048
-    n_batch=512,              # Metal likes 512-1024
-    n_gpu_layers=35,          # leave last layer on CPU to stay under 12 GB 
-    chat_format="qwen",    # activates the chat template you saw
-    yarn_attn_factor=4.0,
-
+llm_config = LLMConfig(
+    config_list =[
+        {'model': 'Qwen3-4B',  # Specify your model
+         'base_url': 'http://localhost:8081/v1',
+         'api_key' : 'None'  # API base URL
+         }
+    ]
 )
 
-# Stateful chat loop (identical to ./main -ins)
-messages = []
-while True:
-    try:
-        user = input("\n>>> ")
-    except (EOFError, KeyboardInterrupt):
-        print("\nBye 👋")
-        break
 
-    messages.append({"role": "user", "content": user})
 
-    print("\n--- assistant ---")
-    out = ""
-    for chunk in llm.create_chat_completion(
-        messages,
-        stream=True,
-        max_tokens=4090,
-        temperature=0.8,
-        top_p=0.95,
-        tools=None,
-    ):
-        delta = chunk["choices"][0]["delta"]
-        if "content" in delta:
-            print(delta["content"], end="", flush=True)
-            out += delta["content"]
-    messages.append({"role": "assistant", "content": out})
+# 3. Create our LLM agent
+with llm_config:
+    my_agent = ConversableAgent(
+        name="van-gogh",
+        system_message="You are a poetic AI assistant, respond in rhyme.",
+        functions=[],  # Register the search tool
+    )
+
+# with llm_config:
+#     my_agent = ConversableAgent(
+#         name="van-gogh-nonthink",
+#         system_message="You are a poetic AI assistant, respond in rhyme.",
+#     )
+
+
+# 4. Run the agent with a prompt
+response = my_agent.run(
+    message="In one sentence, what's the big deal about AI?",
+    max_turns=3,
+    user_input=True,
+    tools=[],  # Register the search tool
+)
+
+# 5. Iterate through the chat automatically with console output
+response.process()
+
+# 6. Print the chat
+print(response.messages)
