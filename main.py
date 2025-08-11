@@ -1,5 +1,4 @@
-from os import getenv
-from agno.agent import Agent, RunResponse
+from agno.agent import Agent
 from agno.models.openai.like import OpenAILike
 from agno.tools.duckduckgo import DuckDuckGoTools
 
